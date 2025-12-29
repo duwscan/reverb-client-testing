@@ -254,14 +254,54 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
       }
 
       events.forEach((eventName) => {
-        channel.listen(eventName, (data: unknown) => {
+        const trimmedEvent = eventName.trim();
+        
+        channel.listen(trimmedEvent, (data: unknown) => {
+          console.log(`[Event] Received via .listen(): ${trimmedEvent}`, data);
+          get().addLogEntry({
+            type: "event",
+            channel: fullName,
+            event: trimmedEvent,
+            payload: data,
+          });
+        });
+
+        const pusherChannel = channel.subscription;
+        
+        pusherChannel.bind(trimmedEvent, (data: unknown) => {
+          console.log(`[Event] Received via .bind() (exact): ${trimmedEvent}`, data);
+          get().addLogEntry({
+            type: "event",
+            channel: fullName,
+            event: trimmedEvent,
+            payload: data,
+          });
+        });
+
+        pusherChannel.bind_global((eventName: string, data: unknown) => {
+          if (eventName.startsWith("pusher:")) return;
+          console.log(`[Event] Global event: ${eventName}`, data);
+        });
+      });
+
+      channel.subscription.bind_global((eventName: string, data: unknown) => {
+        if (eventName.startsWith("pusher:")) return;
+        console.log(`[Channel ${fullName}] Any event: ${eventName}`, data);
+        
+        const isListenedEvent = events.some(e => {
+          const t = e.trim();
+          return eventName === t || eventName === `.${t}` || eventName === `\\${t}`;
+        });
+        
+        if (!isListenedEvent) {
           get().addLogEntry({
             type: "event",
             channel: fullName,
             event: eventName,
             payload: data,
+            message: "(unregistered event)",
           });
-        });
+        }
       });
 
       if (type === "presence") {
