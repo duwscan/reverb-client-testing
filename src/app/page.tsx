@@ -109,7 +109,7 @@ export default function Home() {
             <SubscribedChannels />
           </div>
 
-          <div className="lg:min-h-[600px]">
+          <div className="h-[calc(100vh-220px)] min-h-[400px]">
             <EventLog />
           </div>
         </div>

@@ -32,7 +32,7 @@ export function EventLog() {
   }, [eventLog.length]);
 
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="flex h-full min-h-[400px] flex-col lg:min-h-[600px]">
       <CardHeader className="flex-shrink-0 pb-3">
         <CardTitle className="flex items-center justify-between text-base">
           <div className="flex items-center gap-2">
@@ -56,9 +56,9 @@ export function EventLog() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
-        <ScrollArea className="h-[500px] px-4 pb-4" ref={scrollRef}>
+        <ScrollArea className="h-full px-4 pb-4" ref={scrollRef}>
           {eventLog.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
               No events yet. Connect to a server and subscribe to channels.
             </div>
           ) : (

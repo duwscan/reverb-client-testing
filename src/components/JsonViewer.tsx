@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 interface JsonViewerProps {
   data: unknown;
   className?: string;
+  defaultExpanded?: boolean;
 }
 
-export function JsonViewer({ data, className }: JsonViewerProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+export function JsonViewer({ data, className, defaultExpanded = true }: JsonViewerProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -25,19 +26,19 @@ export function JsonViewer({ data, className }: JsonViewerProps) {
   };
 
   if (data === null || data === undefined) {
-    return <span className="json-null">null</span>;
+    return <span className="text-orange-500">null</span>;
   }
 
   if (typeof data === "string") {
-    return <span className="json-string">&quot;{data}&quot;</span>;
+    return <span className="break-all text-green-600 dark:text-green-400">&quot;{data}&quot;</span>;
   }
 
   if (typeof data === "number") {
-    return <span className="json-number">{data}</span>;
+    return <span className="text-blue-600 dark:text-blue-400">{data}</span>;
   }
 
   if (typeof data === "boolean") {
-    return <span className="json-boolean">{data.toString()}</span>;
+    return <span className="text-purple-600 dark:text-purple-400">{data.toString()}</span>;
   }
 
   const isArray = Array.isArray(data);
@@ -50,12 +51,12 @@ export function JsonViewer({ data, className }: JsonViewerProps) {
   }
 
   return (
-    <div className={cn("font-mono text-xs", className)}>
+    <div className={cn("max-w-full overflow-hidden font-mono text-xs", className)}>
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="icon"
-          className="h-4 w-4 p-0"
+          className="h-4 w-4 shrink-0 p-0"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? (
@@ -65,12 +66,12 @@ export function JsonViewer({ data, className }: JsonViewerProps) {
           )}
         </Button>
         <span className="text-muted-foreground">
-          {isArray ? `Array(${entries.length})` : `Object`}
+          {isArray ? `Array(${entries.length})` : `Object(${entries.length})`}
         </span>
         <Button
           variant="ghost"
           size="icon"
-          className="ml-auto h-4 w-4 p-0"
+          className="ml-auto h-4 w-4 shrink-0 p-0"
           onClick={handleCopy}
         >
           {copied ? (
@@ -81,12 +82,16 @@ export function JsonViewer({ data, className }: JsonViewerProps) {
         </Button>
       </div>
       {isExpanded && (
-        <div className="ml-4 border-l border-border pl-2">
+        <div className="ml-4 max-h-[300px] overflow-auto border-l border-border pl-2">
           {entries.map(([key, value]) => (
-            <div key={String(key)} className="flex gap-1">
-              <span className="json-key">{isArray ? `[${key}]` : `"${key}"`}</span>
-              <span className="text-muted-foreground">:</span>
-              <JsonViewer data={value} />
+            <div key={String(key)} className="flex min-w-0 gap-1">
+              <span className="shrink-0 text-amber-600 dark:text-amber-400">
+                {isArray ? `[${key}]` : `"${key}"`}
+              </span>
+              <span className="shrink-0 text-muted-foreground">:</span>
+              <div className="min-w-0 flex-1">
+                <JsonViewer data={value} defaultExpanded={false} />
+              </div>
             </div>
           ))}
         </div>
